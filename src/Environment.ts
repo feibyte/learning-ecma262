@@ -1,7 +1,10 @@
 class Environment {
+  private outer: Environment;
+
   private symbolTable: {};
 
-  constructor() {
+  constructor(outer: Environment = null) {
+    this.outer = outer;
     this.symbolTable = {};
   }
 
@@ -14,7 +17,13 @@ class Environment {
   }
 
   get(name) {
-    return this.symbolTable[name];
+    if (this.symbolTable[name] !== undefined) {
+      return this.symbolTable[name];
+    }
+    if (this.outer) {
+      return this.outer.get(name);
+    }
+    return undefined;
   }
 }
 

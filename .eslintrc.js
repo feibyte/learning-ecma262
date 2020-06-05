@@ -15,6 +15,7 @@ module.exports = {
     "import/prefer-default-export": "off",
     "class-methods-use-this": "off",
     "import/no-extraneous-dependencies": "off",
-    "@typescript-eslint/no-unused-vars": "off"
+    "@typescript-eslint/no-unused-vars": "off",
+    "no-plusplus": "off"
   }
 };

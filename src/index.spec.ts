@@ -42,3 +42,43 @@ describe('Var and Declaration', () => {
   `)).toBe(15);
   });
 });
+
+describe('Function and Scope', () => {
+  it('should create a new scope in function', () => {
+    const z2 = new Z2();
+    expect(z2.run(`
+      var a = 3;
+      function outer() {
+        var a = 5;
+        return a;
+      }
+      outer();
+  `)).toBe(5);
+    expect(z2.run(`
+      var a = 3;
+      function outer() {
+        var a = 5;
+        return a;
+      }
+      outer();
+      a + 1;
+  `)).toBe(4);
+  });
+
+  it('should support closure', () => {
+    const z2 = new Z2();
+    expect(z2.run(`
+      var b = 5;
+      function outer() {
+       var b = 10;
+       function inner() {
+         var a = 20;
+         return a + b;
+        }
+       return inner;
+      }
+      var fn = outer();
+      fn();
+  `)).toBe(30);
+  });
+});
