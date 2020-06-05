@@ -1,12 +1,16 @@
 import { Parser } from 'acorn';
 import {
-  BinaryExpression, ExpressionStatement, Program, Node,
+  BinaryExpression, ExpressionStatement, Program, Node, Literal, Identifier, AssignmentExpression,
 } from 'estree';
+import Environment from './Environment';
 
 class Z2 {
+  private env: Environment;
+
   run(code: string) {
     // @ts-ignore
     const program: Node = Parser.parse(code);
+    this.env = new Environment();
     return this.evaluate(program);
   }
 
@@ -19,9 +23,15 @@ class Z2 {
       case 'BinaryExpression':
         return this.evaluateBinaryExpression(node);
       case 'Literal':
-        return node.value;
+        return this.evaluateLiteral(node);
+      case 'VariableDeclaration':
+        return this.evaluateVariableDeclaration(node);
+      case 'Identifier':
+        return this.evaluateIdentifier(node);
+      case 'AssignmentExpression':
+        return this.evaluateAssignmentExpression(node);
       default:
-        throw new Error('Unknown node type');
+        throw new Error(`Unknown node type: ${node.type}`);
     }
   }
 
@@ -53,7 +63,31 @@ class Z2 {
       case '%':
         return left % right;
       default:
-        throw new Error('Unknown operator');
+        throw new Error(`Unknown operator: ${node.type}`);
+    }
+  }
+
+  evaluateLiteral(node: Literal) {
+    return node.value;
+  }
+
+  evaluateVariableDeclaration(node) {
+    node.declarations.forEach((declaration) => {
+      if (declaration.id.type === 'Identifier') {
+        this.env.init(declaration.id.name, this.evaluate(declaration.init));
+      } else {
+        // TODO support other patterns such as ObjectPattern, ArrayPattern
+      }
+    });
+  }
+
+  evaluateIdentifier(node: Identifier) {
+    return this.env.get(node.name);
+  }
+
+  evaluateAssignmentExpression(node: AssignmentExpression) {
+    if (node.left.type === 'Identifier') {
+      this.env.set(node.left.name, this.evaluate(node.right));
     }
   }
 }
