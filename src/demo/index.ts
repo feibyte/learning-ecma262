@@ -1,28 +1,18 @@
 import { Parser } from 'acorn';
-import {
-  BinaryExpression,
-  ExpressionStatement,
-  Program,
-  Node,
-  Literal,
-  Identifier,
-  AssignmentExpression,
-  FunctionDeclaration,
-  CallExpression, BlockStatement, ReturnStatement,
-} from 'estree';
+import * as ESTree from 'estree';
 import Environment from './Environment';
 
 class Z2 {
   private env: Environment;
 
   run(code: string) {
-    // @ts-ignore
-    const program: Node = Parser.parse(code);
     this.env = new Environment();
+    // @ts-ignore
+    const program: ESTree.Node = Parser.parse(code);
     return this.evaluate(program);
   }
 
-  evaluate(node) {
+  evaluate(node: ESTree.Node) {
     switch (node.type) {
       case 'Program':
         return this.evaluateProgram(node);
@@ -51,7 +41,7 @@ class Z2 {
     }
   }
 
-  evaluateProgram(node: Program) {
+  evaluateProgram(node: ESTree.Program) {
     let value;
     node.body.forEach((expression) => {
       value = this.evaluate(expression);
@@ -59,11 +49,11 @@ class Z2 {
     return value;
   }
 
-  evaluateExpressionStatement(node: ExpressionStatement) {
+  evaluateExpressionStatement(node: ESTree.ExpressionStatement) {
     return this.evaluate(node.expression);
   }
 
-  evaluateBinaryExpression(node: BinaryExpression) {
+  evaluateBinaryExpression(node: ESTree.BinaryExpression) {
     const { operator } = node;
     const left = this.evaluate(node.left);
     const right = this.evaluate(node.right);
@@ -76,14 +66,12 @@ class Z2 {
         return left * right;
       case '/':
         return left / right;
-      case '%':
-        return left % right;
       default:
         throw new Error(`Unknown operator: ${node.type}`);
     }
   }
 
-  evaluateLiteral(node: Literal) {
+  evaluateLiteral(node: ESTree.Literal) {
     return node.value;
   }
 
@@ -97,17 +85,17 @@ class Z2 {
     });
   }
 
-  evaluateIdentifier(node: Identifier) {
+  evaluateIdentifier(node: ESTree.Identifier) {
     return this.env.get(node.name);
   }
 
-  evaluateAssignmentExpression(node: AssignmentExpression) {
+  evaluateAssignmentExpression(node: ESTree.AssignmentExpression) {
     if (node.left.type === 'Identifier') {
       this.env.set(node.left.name, this.evaluate(node.right));
     }
   }
 
-  evaluateFunctionDeclaration(node: FunctionDeclaration) {
+  evaluateFunctionDeclaration(node: ESTree.FunctionDeclaration) {
     if (node.id.type === 'Identifier') {
       this.env.init(node.id.name, this.createFunction(node));
     }
@@ -120,14 +108,10 @@ class Z2 {
     };
   }
 
-  evaluateCallExpression(node: CallExpression) {
+  evaluateCallExpression(node: ESTree.CallExpression) {
     if (node.callee.type === 'Identifier') {
       const fn = this.env.get(node.callee.name);
       const env = new Environment(fn.parentEnv);
-      const args = node.arguments.map((argumentNode) => this.evaluate(argumentNode));
-      fn.node.params.forEach((param, index) => {
-        env.init(param.name, args[index]);
-      });
       const currentEnv = this.env;
       this.env = env;
       const result = this.evaluate(fn.node.body);
@@ -137,7 +121,7 @@ class Z2 {
     throw Error('Unknown call');
   }
 
-  evaluateBlockStatement(node: BlockStatement) {
+  evaluateBlockStatement(node: ESTree.BlockStatement) {
     for (let i = 0; i < node.body.length; i++) {
       const statement = node.body[i];
       const result = this.evaluate(statement);
@@ -148,7 +132,7 @@ class Z2 {
     return undefined;
   }
 
-  evaluateReturnStatement(node: ReturnStatement) {
+  evaluateReturnStatement(node: ESTree.ReturnStatement) {
     return this.evaluate(node.argument);
   }
 }

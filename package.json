@@ -1,9 +1,11 @@
 {
-  "name": "js-interpreter",
+  "name": "learning-ecma262",
   "version": "1.0.0",
   "description": "A DIY guide to build your own JS interpreter",
   "main": "index.js",
   "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs",
     "lint": "eslint src --ext .ts",
     "lint:check": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
@@ -13,6 +15,10 @@
   },
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "@types/estree": "0.0.44",
+    "acorn": "^7.2.0"
+  },
   "devDependencies": {
     "@types/jest": "^25.2.3",
     "@typescript-eslint/eslint-plugin": "^3.1.0",
@@ -21,7 +27,8 @@
     "eslint-plugin-import": "^2.20.2",
     "jest": "^26.0.1",
     "ts-jest": "^26.1.0",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "vuepress": "^1.5.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -36,9 +43,5 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "dependencies": {
-    "@types/estree": "0.0.44",
-    "acorn": "^7.2.0"
   }
 }

@@ -1,5 +1,6 @@
 # compiled output
 /dist
+/docs/.vuepress/dist/
 /node_modules
 
 # Logs

@@ -1,7 +1,7 @@
 import Z2 from './index';
 
 describe('Math Expression', () => {
-  it('should return sum when execute addition', () => {
+  it('should return sum when adding two numbers', () => {
     const z2 = new Z2();
     expect(z2.run('3 + 4')).toBe(7);
     expect(z2.run('3 + 4 + 15')).toBe(22);
@@ -11,6 +11,7 @@ describe('Math Expression', () => {
     const z2 = new Z2();
     expect(z2.run('3 + 4 * 2')).toBe(11);
     expect(z2.run('8 + 12 / 3 + 4 * 2')).toBe(20);
+    expect(z2.run('1 + 2 * 3 - 4 / 5')).toBe(6.2);
   });
 
   it('should return correct value given expression include parentheses', () => {
@@ -20,7 +21,7 @@ describe('Math Expression', () => {
 });
 
 describe('Var and Declaration', () => {
-  it('should support var ', () => {
+  it('should calculate correct value given expression has variable', () => {
     const z2 = new Z2();
     expect(z2.run(`
       var a = 3;
@@ -29,8 +30,9 @@ describe('Var and Declaration', () => {
     expect(z2.run(`
       var a = 3;
       var b = 4;
-      a + b;
-  `)).toBe(7);
+      var c = 2;
+      a + b * c;
+  `)).toBe(11);
   });
 
   it('should return correct value when var is changed', () => {
@@ -38,8 +40,9 @@ describe('Var and Declaration', () => {
     expect(z2.run(`
       var a = 3;
       a = 5;
-      a * 3;
-  `)).toBe(15);
+      var c = 2;
+      a * c;
+  `)).toBe(10);
   });
 });
 
@@ -54,6 +57,10 @@ describe('Function and Scope', () => {
       }
       outer();
   `)).toBe(5);
+  });
+
+  it('should access its own variable after calling a function', () => {
+    const z2 = new Z2();
     expect(z2.run(`
       var a = 3;
       function outer() {
@@ -62,7 +69,18 @@ describe('Function and Scope', () => {
       }
       outer();
       a + 1;
-  `)).toBe(4);
+    `)).toBe(4);
+  });
+
+  it('should be able to access outer variable in function', () => {
+    const z2 = new Z2();
+    expect(z2.run(`
+      var a = 3;
+      function outer() {
+        return a;
+      }
+      outer();
+    `)).toBe(3);
   });
 
   it('should support closure', () => {

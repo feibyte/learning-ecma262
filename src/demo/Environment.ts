@@ -1,11 +1,10 @@
 class Environment {
   private outer: Environment;
 
-  private symbolTable: {};
+  private symbolTable = {};
 
   constructor(outer: Environment = null) {
     this.outer = outer;
-    this.symbolTable = {};
   }
 
   init(name, value) {
